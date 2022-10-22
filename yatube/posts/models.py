@@ -16,13 +16,14 @@ class Post(models.Model):
         'Group',
         blank=True,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='posts'
     )
-    
+
 
 class Group(models.Model):
     title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField()
 
     def __str__(self):
