@@ -6,10 +6,10 @@ from .models import Post, Group
 class PostAdmin(admin.ModelAdmin):
     # Перечисляем поля, которые должны отображаться в админке
     list_display = ('pk',
-        'text',
-        'pub_date',
-        'author',
-        'group',
+                    'text',
+                    'pub_date',
+                    'author',
+                    'group',
     )
     # Это позволит изменять поле group в любом посте
     # без лишних движений мышкой, прямо из списка постов
