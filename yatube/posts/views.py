@@ -1,51 +1,39 @@
-from django.shortcuts import render, get_object_or_404
-# Импортируем модель, чтобы обратиться к ней
-from .models import Post, Group
+from django.shortcuts import get_object_or_404, render
+
+from .models import Group, Post
 
 
-# Главная страница
+POSTS_PER_PAGE = 10
+
+
 def index(request):
-    # Одна строка вместо тысячи слов на SQL:
-    # в переменную posts будет сохранена выборка
-    # из 10 объектов модели Post,
-    # отсортированных по полю pub_date по убыванию
-    # (от больших значений к меньшим)
-    posts = Post.objects.order_by('-pub_date')[:10]
-    # В словаре context отправляем информацию в шаблон
-    # template = 'posts/index.html'
-    # title = 'Это главная страница проекта Yatube'
+    """ Возвращает главную страницу """
+    posts = Post.objects.all()[:POSTS_PER_PAGE]
+    """ Сортировка постов по дате публикации """
+    show_link = True
+    """ Размещение информации в шаблон """
     context = {
         'posts': posts,
+        'show_link': show_link,
     }
     return render(request, 'posts/index.html', context)
 
 
-# Страница сообществ
 def group_posts(request, slug):
+    """ Посты, отфильтрованные по группам """
     template = 'posts/group_list.html'
-    # Функция get_object_or_404 получает по заданным критериям объект
-    # из базы данных или возвращает сообщение об ошибке, если объект не найден.
-    # В нашем случае в переменную group будут переданы объекты модели Group,
-    # поле slug у которых соответствует значению slug в запросе
     group = get_object_or_404(Group, slug=slug)
-
-    # Метод .filter позволяет ограничить поиск по критериям.
-    # Это аналог добавления
-    # условия WHERE group_id = {group_id}
-    posts = Post.objects.filter(group=group).order_by('-pub_date')[:10]
+    """
+    Возвращает сообщение об ошибке,
+    если slug запроса не соответствует slug группы
+    """
+    posts = group.posts.all()[:POSTS_PER_PAGE]
+    """ Метод .filter ограничивает поиск по критериям """
+    show_link = True
+    """ Словарь с данными """
     context = {
         'group': group,
         'posts': posts,
+        'show_link': show_link,
     }
     return render(request, template, context)
-    # template = 'posts/group_list.html'
-    # title = 'Здесь будет информация о группах проекта Yatube'
-    # context = {
-    #    'title': title
-    # }
-    # return render(request, template, context)
-
-
-# def posts_list(request, slug):
-#     template = 'posts/group_list.html'
-#     return render(request, template)

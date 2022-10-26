@@ -1,30 +1,48 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-# Create your models here.
+
+from django.db import models
+
+
 User = get_user_model()
 
 
+class Group(models.Model):
+    """ Модель для сообществ """
+    title = models.CharField(verbose_name="Название группы", max_length=200)
+    slug = models.SlugField(verbose_name="Связанная ссылка",
+                            max_length=100, unique=True)
+    description = models.TextField(verbose_name="Описание группы")
+
+    class Meta:
+        verbose_name = "Группа"
+        verbose_name_plural = "Группы"
+
+    def __str__(self):
+        """ При печати объекта модели Group выводится поле title """
+        return f"{self.title}"
+
+
 class Post(models.Model):
-    text = models.TextField()
-    pub_date = models.DateTimeField(auto_now_add=True)
+    """ Модель для постов """
+    group = models.ForeignKey(
+        Group,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name="Родственная группа",
+        related_name='posts'
+    )
+    text = models.TextField(verbose_name="Содержимое поста")
+    pub_date = models.DateTimeField("Дата поста", auto_now_add=True)
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='posts'
-    )
-    group = models.ForeignKey(
-        'Group',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
+        verbose_name="Автор поста",
         related_name='posts'
     )
 
-
-class Group(models.Model):
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.TextField()
-
-    def __str__(self):
-        return f"{self.title}"
+    class Meta:
+        ordering = ('-pub_date',)
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
